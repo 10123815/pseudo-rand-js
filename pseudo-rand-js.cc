@@ -123,6 +123,28 @@ void Normal(const FunctionCallbackInfo<Value>& args)
 // @param[in]	args[0]		Mean.
 // @param[in] 	args[1] 	Standard devision.
 // @param[out]	args		Random value.
+void ProactiveNormal(const FunctionCallbackInfo<Value>& args)
+{
+	if (!Check(args, 2))
+	{
+		return;
+	}
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	double m = args[0]->NumberValue();
+	double d = args[1]->NumberValue();
+	std::normal_distribution<> dis(m, d);
+	double res = dis(gen);
+	res = (res < m) ? 2 * m - res : res;
+	args.GetReturnValue().Set(res);
+
+}
+
+// Return a float follow a proactive normal distribution with the exponential arguments.
+// @param[in]	args[0]		Mean.
+// @param[in] 	args[1] 	Standard devision.
+// @param[out]	args		Random value.
 void ProactiveExpNormal(const FunctionCallbackInfo<Value>& args)
 {
 
@@ -152,7 +174,8 @@ void init(Local<Object> exports)
 	NODE_SET_METHOD(exports, "geo", Geometric);
 	NODE_SET_METHOD(exports, "exp", Exponential);
 	NODE_SET_METHOD(exports, "norm", Normal);
-	NODE_SET_METHOD(exports, "pnorm", ProactiveExpNormal);
+	NODE_SET_METHOD(exports, "penorm", ProactiveExpNormal);
+	NODE_SET_METHOD(exports, "pnorm", ProactiveNormal);
 }
 
 NODE_MODULE(pseudo_rand, init);
